@@ -18,7 +18,6 @@ export const useCalculator = () => {
       setArrOfValues([])
       setOperators({})
 
-      console.log(concatDataForCalc)
       setCalculatedResult(evaluate(concatDataForCalc))
     }
   }, [toCalculate])
@@ -30,12 +29,29 @@ export const useCalculator = () => {
     if (calculatedResult !== null) setCalculatedResult(null)
 
     if (value === "=") queueCalculation()
-    else if (!isAnOperator || value === "." || value === "(" || value === ")")
+    else if (!isAnOperator || value === "." || value === "(" || value === ")") {
+      // disallow entering ')' if there is no '('
+      if (value === ")") if (disallowNonClosingParenthesesFirst(value)) return
       setCurrentValue(prev => prev ? `${prev}${value}` : value)
+    }
     else if (isAnOperator) addOperator(value)
   }
 
+  function disallowNonClosingParenthesesFirst(value: string) {
+    const openingCount = arrOfValues.find(item => item === ("("))?.length ?? 0
+    const closingCount = arrOfValues.find(item => item === (")"))?.length ?? 0
+    let openingCountCurrentVal = 0
+    let closingCountCurrentVal = 0
+    for (var i = 0; i < currentValue.length; i++) {
+      if (currentValue[i] === "(") openingCountCurrentVal++
+      if (currentValue[i] === ")") closingCountCurrentVal++
+    }
+    if (openingCount + openingCountCurrentVal <= closingCount + closingCountCurrentVal) return true
+    else return false
+  }
+
   function addOperator(value: string) {
+    if (currentValue === "") return
     //save operator, push currentValue to arrOfValues and reset currentValue
     setOperators((obj: any) => ({ ...obj, [arrOfValues.length]: value }))
     setArrOfValues((prev: string[]) => [...prev, currentValue])
@@ -43,6 +59,9 @@ export const useCalculator = () => {
   }
 
   function queueCalculation() {
+    // prevent calculation if the value ends with an operator. Eg 3+3+
+    if (currentValue === "") return
+
     if (arrOfValues !== undefined) {
       setArrOfValues((prev: string[]) => [...prev, currentValue])
       setCurrentValue("")
