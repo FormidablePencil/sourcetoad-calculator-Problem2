@@ -7,61 +7,52 @@ export const useCalculator = () => {
   const [operators, setOperators] = useState<any>({})
   const [toCalculate, setToCalculate] = useState<boolean>(false)
   const [calculatedResult, setCalculatedResult] = useState<string | null>(null)
-  const [showCalculatedResult, setShowCalculatedResult] = useState<boolean>(false)
 
   useEffect(() => {
+    // preform calculation and cleanup
     if (toCalculate === true) {
-      console.log(arrOfValues, "arrOfValues")
-      const res = arrOfValues.reduce((first, second, idx) => {
-        console.log(`${first} ${operators[idx]} ${second} what`)
-        return evaluate(`${first} ${operators[idx - 1]} ${second}`)
-      })
+      const concatDataForCalc = arrOfValues.reduce((first, second, idx) => `${first} ${operators[idx - 1]} ${second}`)
+
+      // reset everything
       setToCalculate(false)
-      setShowCalculatedResult(true)
       setArrOfValues([])
       setOperators({})
-      setCalculatedResult(res)
+
+      console.log(concatDataForCalc)
+      setCalculatedResult(evaluate(concatDataForCalc))
     }
   }, [toCalculate])
 
-  function onClick(value: string) {
-    let isNumber = !isNaN(parseInt(value))
+  function onClickAnyBtn(value: string) {
+    let isAnOperator = isNaN(parseInt(value))
 
-    if (calculatedResult !== null) {
-      setShowCalculatedResult(false)
-      setCalculatedResult(null)
-    }
+    // when pressing another value clear calculated output
+    if (calculatedResult !== null) setCalculatedResult(null)
 
-    if (value === "=") setupCalculation()
-    else if (isNumber) setCurrentValue(prev => prev ? `${prev}${value}` : value)
-    else if (!isNumber) addOperator(value)
+    if (value === "=") queueCalculation()
+    else if (!isAnOperator || value === "." || value === "(" || value === ")")
+      setCurrentValue(prev => prev ? `${prev}${value}` : value)
+    else if (isAnOperator) addOperator(value)
   }
 
   function addOperator(value: string) {
     //save operator, push currentValue to arrOfValues and reset currentValue
-    setOperators((obj: any) => {
-      return { ...obj, [arrOfValues.length]: value }
-    })
+    setOperators((obj: any) => ({ ...obj, [arrOfValues.length]: value }))
     setArrOfValues((prev: string[]) => [...prev, currentValue])
     setCurrentValue("")
   }
 
-  function setupCalculation() {
+  function queueCalculation() {
     if (arrOfValues !== undefined) {
-      setArrOfValues((prev: string[]) => [...prev, "2"])
+      setArrOfValues((prev: string[]) => [...prev, currentValue])
       setCurrentValue("")
       setToCalculate(true)
-      // const res = arrOfValues.reduce((first, second, idx) => {
-      //   console.log(`${first} ${operators[idx]} ${second} what`)
-      //   return evaluate(`${first} ${operators[idx]} ${second}`)
-      // })
     }
-    // return operators[values.length]
   }
 
   return {
-    onClick,
-    showCalculatedResult: calculatedResult,
+    onClickAnyBtn,
+    calculatedResult,
     arrOfValues, setArrOfValues,
     currentValue, setCurrentValue,
     operators, setOperators,
