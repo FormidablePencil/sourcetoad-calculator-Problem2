@@ -20,6 +20,7 @@ export const useCalculator = () => {
 
       setCalculatedResult(evaluate(concatDataForCalc))
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toCalculate])
 
   function onClickAnyBtn(value: string) {
@@ -75,6 +76,6 @@ export const useCalculator = () => {
     arrOfValues, setArrOfValues,
     currentValue, setCurrentValue,
     operators, setOperators,
-    calculate2: toCalculate, setCalculate2: setToCalculate
+    toCalculate, setCalculate2: setToCalculate
   }
 }

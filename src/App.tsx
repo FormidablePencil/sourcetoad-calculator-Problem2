@@ -1,4 +1,3 @@
-import { useState } from "react";
 import "./App.css"
 import { useCalculator } from './Calculator';
 
@@ -6,12 +5,10 @@ function App() {
   const {
     onClickAnyBtn,
     calculatedResult,
-    arrOfValues, setArrOfValues,
-    currentValue, setCurrentValue,
-    operators, setOperators,
-    calculate2, setCalculate2
+    arrOfValues,
+    currentValue,
+    operators,
   } = useCalculator();
-  const [test, setTest] = useState<boolean>(false)
 
   const DisplayCalcValues = () => <div>
     {arrOfValues.length === 0 ? currentValue : arrOfValues.map((value, idx) =>
